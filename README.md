@@ -13,7 +13,7 @@ Example Route:
 Note: *In my example, web3 and contract json's are injected via eth*
 
 ```js
-const BlockExplorer = require('@appliedblockchain/simple-block-explorer')
+const { BlockExplorer } = require('@appliedblockchain/simple-block-explorer')
 const web3 = new Web3()
 const componentJson = require('contracts/Components.json')
 const contracts = [ componentJson ]
