@@ -66,7 +66,7 @@ class BlockExplorer {
 
     const promises = []
     while (blockNumber > minBlock) {
-      promises.push(await this.getBlockData(blockNumber))
+      promises.push(this.getBlockData(blockNumber))
       blockNumber--
     }
 
