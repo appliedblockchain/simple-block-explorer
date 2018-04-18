@@ -1,4 +1,4 @@
-const { sortBy, filter } = require('lodash')
+const { sortBy, filter, omit } = require('lodash')
 const abiDecoder = require('abi-decoder')
 
 class BlockExplorer {
@@ -34,11 +34,10 @@ class BlockExplorer {
               if (typeof this.txMiddleware === 'function') {
                 tx = await this.txMiddleware(tx)
               }
-              transactionData.push(tx)
+              transactionData.push(
+                omit(tx, [ 'r', 's', 'v', 'standardV', 'creates', 'condition' ])
+              )
             }
-
-            console.log('hello')
-
           } catch (e) {
             throw new BlockExplorerError(e)
           }
@@ -46,7 +45,14 @@ class BlockExplorer {
       }
 
       resolve(
-        Object.assign(block, { transactionData })
+        omit(Object.assign(block, { transactionData }), [
+          'logsBloom',
+          'difficulty',
+          'stateRoot',
+          'totalDifficulty',
+          'extraData',
+          'sealFields'
+        ])
       )
     })
   }
