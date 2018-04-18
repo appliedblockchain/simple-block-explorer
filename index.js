@@ -1,12 +1,12 @@
-const { find, sortBy, get } = require('lodash')
+const { sortBy, filter } = require('lodash')
 const abiDecoder = require('abi-decoder')
 
 class BlockExplorer {
-  constructor ({
-    web3,
-    contracts = [],
-    txMiddleware = null
-  } = {}) {
+  constructor({
+                web3,
+                contracts = [],
+                txMiddleware = null
+              } = {}) {
     this.web3 = web3
     this.txMiddleware = txMiddleware
 
@@ -37,6 +37,8 @@ class BlockExplorer {
               transactionData.push(tx)
             }
 
+            console.log('hello')
+
           } catch (e) {
             throw new BlockExplorerError(e)
           }
@@ -56,17 +58,19 @@ class BlockExplorer {
       blockNumber - pageSize :
       0
 
-    const blocks = []
-
+    const promises = []
     while (blockNumber > minBlock) {
-      const block = await this.getBlockData(blockNumber)
-      if (block.transactionData.length > 0) {
-        blocks.push(block)
-      }
+      promises.push(await this.getBlockData(blockNumber))
       blockNumber--
     }
 
-    return sortBy(blocks, 'number').reverse()
+    const blocks = await Promise.all(promises)
+
+    const excludeZeroTx = filter(blocks, block => {
+      return block.transactions.length > 0
+    })
+
+    return sortBy(excludeZeroTx, 'number').reverse()
   }
 }
 
