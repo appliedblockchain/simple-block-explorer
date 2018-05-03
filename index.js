@@ -1,12 +1,8 @@
-const { sortBy, filter, omit } = require('lodash')
+const { sortBy, filter } = require('lodash')
 const abiDecoder = require('abi-decoder')
 
 class BlockExplorer {
-  constructor({
-                web3,
-                contracts = [],
-                txMiddleware = null
-              } = {}) {
+  constructor({ web3, contracts = [], txMiddleware = null } = {}) {
     this.web3 = web3
     this.txMiddleware = txMiddleware
 
@@ -27,16 +23,13 @@ class BlockExplorer {
 
           try {
             let tx = await this.web3.eth.getTransaction(transaction)
-            const decodedWithAbi = abiDecoder.decodeMethod(tx.input)
-            tx.decodedTx = decodedWithAbi
+            tx.decodedTx = abiDecoder.decodeMethod(tx.input)
 
             if (tx.decodedTx && tx.decodedTx.params) {
               if (typeof this.txMiddleware === 'function') {
                 tx = await this.txMiddleware(tx)
               }
-              transactionData.push(
-                omit(tx, [ 'r', 's', 'v', 'standardV', 'creates', 'condition' ])
-              )
+              transactionData.push(tx)
             }
           } catch (e) {
             throw new BlockExplorerError(e)
@@ -44,16 +37,7 @@ class BlockExplorer {
         }
       }
 
-      resolve(
-        omit(Object.assign(block, { transactionData }), [
-          'logsBloom',
-          'difficulty',
-          'stateRoot',
-          'totalDifficulty',
-          'extraData',
-          'sealFields'
-        ])
-      )
+      resolve(Object.assign(block, { transactionData }))
     })
   }
 
