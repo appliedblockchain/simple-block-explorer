@@ -41,8 +41,8 @@ class BlockExplorer {
     })
   }
 
-  async getTransactions(pageSize) {
-    let blockNumber = await this.web3.eth.getBlockNumber()
+  async getTransactions(pageSize, maxBlockNumber) {
+    let blockNumber = maxBlockNumber || await this.web3.eth.getBlockNumber()
 
     const minBlock = pageSize && (blockNumber > pageSize) ?
       blockNumber - pageSize :
